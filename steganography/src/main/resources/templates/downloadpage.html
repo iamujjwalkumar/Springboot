@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Download File</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background: linear-gradient(135deg, #e3f2fd, #f9fbe7);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .download-container {
+            background: #fff;
+            padding: 50px 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .btn-custom {
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .btn-home {
+            margin-top: 20px;
+            background-color: #f1f3f4;
+            color: #333;
+            border: none;
+        }
+
+        .btn-home:hover {
+            background-color: #e0e0e0;
+            color: #000;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="download-container">
+    <h2>Your file is ready to download</h2>
+
+    <!-- Download Button -->
+    <a th:href="@{/download(imagePath=${filePath})}" class="btn btn-success btn-custom" download>
+        Download File
+    </a>
+
+    <!-- Home Button -->
+    <div>
+        <a th:href="@{/}" class="btn btn-home btn-custom">
+            Go to Home Page
+        </a>
+    </div>
+</div>
+
+</body>
+</html>

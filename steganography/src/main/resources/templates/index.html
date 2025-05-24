@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Steganography Tool</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            background: linear-gradient(to right, #f0f4ff, #e8f5e9);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding-top: 60px;
+        }
+
+        .main-container {
+            background-color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .drop-zone {
+            border: 2px dashed #bbb;
+            border-radius: 10px;
+            padding: 35px 20px;
+            text-align: center;
+            color: #999;
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            height: 160px;
+        }
+
+        .drop-zone input[type="file"] {
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .drop-zone.dragover {
+            background-color: #e3f2fd;
+            border-color: #2196f3;
+            color: #2196f3;
+        }
+
+        .btn-action {
+            padding: 12px 30px;
+            font-size: 16px;
+            border-radius: 30px;
+            transition: 0.3s ease;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 123, 255, 0.2);
+        }
+
+        .note {
+            font-size: 0.9rem;
+            color: #777;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container main-container">
+    <h2>🔐 Steganography Tool</h2>
+
+    <form id="uploadForm" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <!-- File Upload -->
+            <div class="col-md-6 mb-4">
+                <label for="fileUpload" class="form-label">Upload File to Hide</label>
+                <div id="fileDrop" class="drop-zone">
+                    📄 Drag & Drop File Here or Click to Select
+                    <input type="file" name="file" id="fileUpload">
+                </div>
+            </div>
+
+            <!-- Image Upload -->
+            <div class="col-md-6 mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label for="imageUpload" class="form-label mb-0">Upload Cover Image</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="useDefaultToggle" onchange="toggleDefaultImage()">
+                        <label class="form-check-label" for="useDefaultToggle">Use default</label>
+                    </div>
+                </div>
+
+                <div id="imageDrop" class="drop-zone">
+                    🖼️ Drag & Drop Image Here or Click to Select
+                    <input type="file" name="image" id="imageUpload" accept="image/*">
+                </div>
+                <div class="note">Supported formats: .jpg, .jpeg, .png</div>
+            </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="text-center">
+            <button type="button" class="btn btn-primary btn-action me-3" id="embedButton" onclick="handleEmbed()">
+                🔒 Embed
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-action" id="extractButton" onclick="handleExtract()">
+                🔓 Extract
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- JavaScript Logic -->
+<script>
+    function setupDropZone(dropZoneId, inputId) {
+        const dropZone = document.getElementById(dropZoneId);
+        const fileInput = document.getElementById(inputId);
+
+        dropZone.addEventListener("dragover", function (e) {
+            e.preventDefault();
+            dropZone.classList.add("dragover");
+        });
+
+        dropZone.addEventListener("dragleave", function () {
+            dropZone.classList.remove("dragover");
+        });
+
+        dropZone.addEventListener("drop", function (e) {
+            e.preventDefault();
+            dropZone.classList.remove("dragover");
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+            }
+        });
+    }
+
+    function handleEmbed() {
+        const form = document.getElementById("uploadForm");
+        const fileInput = document.getElementById("fileUpload");
+        const imageInput = document.getElementById("imageUpload");
+        const toggle = document.getElementById("useDefaultToggle");
+
+        const file = fileInput.files[0];
+        const image = imageInput.files[0];
+
+        if (!file || !(image || toggle.checked)) {
+            alert("Both image and file must be provided for embedding.");
+            return;
+        }
+
+        if (!toggle.checked) {
+            const imageName = image.name.toLowerCase();
+            if (!(imageName.endsWith(".jpg") || imageName.endsWith(".jpeg") || imageName.endsWith(".png"))) {
+                alert("Image format must be either .jpg, .jpeg, or .png.");
+                return;
+            }
+        }
+
+        form.action = "/embed";
+        form.submit();
+    }
+
+    function handleExtract() {
+        const form = document.getElementById("uploadForm");
+        const imageInput = document.getElementById("imageUpload");
+        const toggle = document.getElementById("useDefaultToggle");
+
+        if (!imageInput.files[0]) {
+            toggle.checked = false;
+            imageInput.disabled = false;
+            alert("Please select an image for extraction.");
+            return;
+        }
+
+        form.action = "/extract";
+        form.submit();
+    }
+
+    function toggleDefaultImage() {
+        const toggle = document.getElementById("useDefaultToggle");
+        const imageInput = document.getElementById("imageUpload");
+
+        if (toggle.checked) {
+            imageInput.disabled = true;
+            imageInput.value = "";
+        } else {
+            imageInput.disabled = false;
+        }
+    }
+
+    setupDropZone("fileDrop", "fileUpload");
+    setupDropZone("imageDrop", "imageUpload");
+</script>
+
+</body>
+</html>
